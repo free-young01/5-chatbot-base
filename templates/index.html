@@ -9,11 +9,13 @@
   <body class="landing-page">
     <main class="landing-card">
       <header class="landing-header">
-        <h1>캐릭터 챗봇</h1>
+        <p class="eyebrow">A PERFECT PLACE TO BELONG · 1962</p>
+        <h1>더뉴빌리지로 오세요</h1>
       </header>
       <div class="landing-content">
-        <img class="brand-image" src="{{ asset_url('assets/images/hateslop-logo.png') }}" alt="hateSlop 로고">
-        <a class="start-button" href="{{ url_for('detail') }}">시작하기</a>
+        <img class="brand-image" src="{{ bot.image }}" alt="더뉴빌리지의 환영 간판">
+        <p>친절한 이웃, 따뜻한 식탁, 당신을 기다리는 새 가족.</p>
+        <a class="start-button" href="{{ url_for('detail') }}">마을로 이사하기</a>
       </div>
     </main>
   </body>

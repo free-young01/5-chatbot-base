@@ -1,89 +1,60 @@
-"""화면·정적 파일·채팅 응답과 서비스 연결을 확인합니다."""
+"""공개 화면과 이야기 API의 기본 연결을 확인한다."""
 
+import os
 import unittest
 from unittest.mock import patch
 
-from app import app
-from services.chatbot_service import ChatbotService
-from services.retriever import KnowledgeHit
+from cryptography.fernet import Fernet
+
+os.environ["STORY_STATE_KEY"] = Fernet.generate_key().decode("ascii")
+
+from app import app, chatbot  # noqa: E402
+from services.state_token import decode_state  # noqa: E402
 
 
 class SmokeTest(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
 
-    def test_pages_and_referenced_assets(self):
-        for route in ("/", "/detail", "/chat?username=헤슬", "/health"):
-            with self.subTest(route=route):
-                self.assertEqual(self.client.get(route).status_code, 200)
+    def start(self):
+        response = self.client.post("/api/session", json={"player_name": "알렉스"})
+        self.assertEqual(response.status_code, 201)
+        return response.get_json()["state_token"]
 
-        chat_page = self.client.get("/chat").get_data(as_text=True)
-        self.assertIn("/assets/js/chatbot.js", chat_page)
-        self.assertIn("/assets/images/hateslop-logo.png", self.client.get("/").get_data(as_text=True))
-        for path in (
-            "/assets/js/chatbot.js",
-            "/assets/css/style.css",
-            "/assets/images/hateslop-logo.png",
-        ):
+    def test_pages_and_assets(self):
+        for path in ("/", "/detail", "/chat?username=알렉스", "/health", "/assets/js/chatbot.js", "/assets/css/style.css", "/assets/images/village-cover.svg", "/assets/images/jimmy_smile.svg"):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
                 response.close()
 
-    def test_chat_returns_demo_response(self):
-        response = self.client.post("/api/chat", json={"message": "안녕", "username": "헤슬"})
+    def test_session_and_resume(self):
+        token = self.start()
+        response = self.client.post("/api/session/resume", json={"state_token": token})
         self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertIn("안녕", data["reply"])
-        self.assertIsNone(data["image"])
-        self.assertEqual(data["sources"], [])
+        self.assertEqual(response.get_json()["view"]["scene_id"], "arrival")
+        self.assertEqual(decode_state(response.get_json()["state_token"])["player_name"], "알렉스")
 
-    def test_bad_inputs_are_rejected(self):
-        cases = (
-            ({}, 400, "invalid_message"),
-            ({"message": "   "}, 400, "invalid_message"),
-            ({"message": "x" * 2001}, 413, "message_too_long"),
-            ({"message": "안녕", "username": 1}, 400, "invalid_username"),
-        )
-        for payload, status, code in cases:
-            with self.subTest(code=code):
-                response = self.client.post("/api/chat", json=payload)
-                self.assertEqual(response.status_code, status)
-                self.assertEqual(response.get_json()["error"]["code"], code)
-
-        response = self.client.post("/api/chat", data="broken", content_type="application/json")
+    def test_invalid_inputs_and_tampered_token(self):
+        self.assertEqual(self.client.post("/api/session", json={"player_name": " "}).status_code, 400)
+        self.assertEqual(self.client.post("/api/session", data="broken", content_type="application/json").status_code, 400)
+        token = self.start()
+        bad_token = token[:-2] + ("AA" if token[-2:] != "AA" else "BB")
+        response = self.client.post("/api/session/resume", json={"state_token": bad_token})
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json()["error"]["code"], "invalid_json")
+        self.assertEqual(response.get_json()["error"]["code"], "invalid_state_token")
+        response = self.client.post("/api/chat", json={"state_token": token, "character_id": "jimmy", "message": "x" * 2001})
+        self.assertEqual(response.status_code, 413)
 
-    def test_service_failure_is_not_a_successful_null(self):
-        with patch("app.chatbot.generate_response", side_effect=RuntimeError("upstream down")), patch(
-            "app.app.logger.exception"
-        ):
-            response = self.client.post("/api/chat", json={"message": "안녕"})
+    def test_chat_failure_keeps_state_and_unavailable_character_is_rejected(self):
+        token = self.start()
+        response = self.client.post("/api/chat", json={"state_token": token, "character_id": "bob", "message": "안녕"})
+        self.assertEqual(response.status_code, 409)
+        with patch.object(chatbot.generator, "generate", side_effect=RuntimeError("offline")), patch("app.app.logger.exception"):
+            response = self.client.post("/api/chat", json={"state_token": token, "character_id": "jimmy", "message": "안녕"})
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.get_json()["error"]["code"], "chat_failed")
-
-    def test_service_passes_character_and_retrieved_sources_to_generator(self):
-        hit = KnowledgeHit(title="세계관 설정", content="성 안에는 오래된 도서관이 있다.")
-
-        class Retriever:
-            def search(self, question):
-                self.question = question
-                return [hit]
-
-        class Generator:
-            def generate(self, question, username, character, knowledge):
-                self.args = (question, username, character, knowledge)
-                return "도서관을 찾아보세요."
-
-        retriever, generator = Retriever(), Generator()
-        service = ChatbotService(retriever, generator)
-        character = {"name": "안내인"}
-        result = service.generate_response("도서관은 어디?", "헤슬", character)
-        self.assertEqual(retriever.question, "도서관은 어디?")
-        self.assertEqual(generator.args, ("도서관은 어디?", "헤슬", character, [hit]))
-        self.assertEqual(result["sources"], ["세계관 설정"])
-        self.assertEqual(result["reply"], "도서관을 찾아보세요.")
+        self.assertEqual(decode_state(token)["affinity"], 70)
+        self.assertEqual(decode_state(token)["history"], {})
 
 
 if __name__ == "__main__":

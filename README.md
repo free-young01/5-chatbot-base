@@ -219,6 +219,9 @@ README의 시작점으로 다음 목차를 사용할 수 있습니다.
 
 | 문서 | 언제 보면 좋나요? |
 | --- | --- |
+| [팀 스토리](docs/STORY.md) | 더뉴빌리지의 인물·장면·엔딩과 미정인 이야기 요소를 확인할 때 |
+| [팀 구현·협업 계획](docs/TEAM_IMPLEMENTATION.md) | 개발 순서, 담당 파일, 브랜치·PR 방식을 확인할 때 |
+| [팀 API 계약](docs/API_CONTRACT.md) | 화면과 서버를 각자 구현하거나 통합할 때 |
 | [프로젝트 목표와 결과 기준](docs/PROJECT_GUIDE.md) | 구현할 기능과 제출 기준을 정할 때 |
 | [코드 구조와 확장 지점](docs/ARCHITECTURE.md) | 각자 어디에 무엇을 구현할지 정할 때 |
 | [팀 협업 가이드](docs/TEAM_WORKFLOW.md) | 저장소·브랜치·커밋·Pull Request를 처음 맞출 때 |

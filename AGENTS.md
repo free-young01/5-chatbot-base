@@ -24,10 +24,10 @@
 
 ## 파일 소유권과 협업
 
-- **팀장 엔지니어:** `app.py`, `services/chatbot_service.py`, `services/generator.py`, `services/retriever.py`, 새 진행 상태 모듈, `config/`, `data/knowledge/`, 서버 테스트.
-- **다른 엔지니어:** `templates/`, `public/assets/`, `services/image_selector.py`, `data/images/`, 화면 테스트.
+- **팀장 엔지니어 (`suyoung` 브랜치):** `app.py`, `services/story.py`, `services/state_token.py`, `services/chatbot_service.py`, `services/generator.py`, `services/retriever.py`, `config/`, `data/knowledge/`, 서버 테스트.
+- **팀원 엔지니어 (`yejoon` 브랜치):** `templates/`, `public/assets/`, `services/image_selector.py`, `data/images/`, 화면 테스트.
 - `requirements.txt`, `README.md`, `AGENTS.md`, `docs/`, 양쪽이 사용하는 테스트는 공유 영역이다. 수정 전 담당자와 변경 범위를 정한다. 다른 사람 소유 파일을 AI 에이전트가 무심코 수정하지 않도록 diff를 확인한다.
-- 기준 저장소는 팀장 소유 fork다. 각자 브랜치에서 작업하고 PR을 작성한다. 팀장이 검토하고 `main`에 병합한다. `main` 직접 push나 강제 push를 하지 않는다.
+- 기준 저장소는 팀장 소유 fork다. 팀장은 `suyoung`, 팀원은 `yejoon` 브랜치에서 담당 범위를 작업하고 `main` 대상 PR을 작성한다. 팀장이 검토하고 `main`에 병합한다. `main` 직접 push나 강제 push를 하지 않는다.
 - Ponytail 같은 보조 플러그인을 사용해도 이 저장소의 스토리, API 계약, 파일 소유권, 검증 기준을 우선한다. 플러그인을 프로젝트 의존성으로 추가하지 않는다.
 
 ## 환경과 검증

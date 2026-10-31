@@ -4,10 +4,11 @@
 
 ## 먼저 읽을 문서
 
-1. `docs/STORY.md`: 확정된 인물·장면·엔딩과 협의 중인 이야기 요소.
-2. `docs/API_CONTRACT.md`: 화면·서버 및 이미지 선택기의 고정 인터페이스.
-3. `docs/TEAM_IMPLEMENTATION.md`: 구현 순서, 담당 영역, PR 절차.
-4. 해당 작업에 영향을 주는 기존 `README.md`, `docs/PROJECT_GUIDE.md`, 코드와 테스트.
+1. `docs/IMPLEMENTATION_SPEC.md`: 초기 베이스 대비 기능, 담당자, 현재 상태와 다음 작업.
+2. `docs/STORY.md`: 확정된 인물·장면·엔딩.
+3. `docs/API_CONTRACT.md`: 화면·서버 및 이미지 선택기의 고정 인터페이스.
+4. `docs/TEAM_IMPLEMENTATION.md`: 구현 순서, 담당 영역, PR 절차.
+5. 해당 작업에 영향을 주는 기존 `README.md`, `docs/PROJECT_GUIDE.md`, 코드와 테스트.
 
 스토리의 핵심 사건과 세 엔딩은 `docs/STORY.md`를 기준으로 유지한다. 호감도 기준은 시연 후 조정할 수 있도록 설정값으로 둔다.
 

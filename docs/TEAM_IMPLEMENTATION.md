@@ -8,17 +8,17 @@
 
 | 담당 | 작업 | 소유 파일 |
 | --- | --- | --- |
-| 팀장 | 장면·호감도·엔딩, 공개 사실 검색, AI 대사, 토큰과 API | `app.py`, `services/story.py`, `services/state_token.py`, `services/chatbot_service.py`, `services/generator.py`, `services/retriever.py`, `config/`, `data/knowledge/`, 서버 테스트 |
-| 다른 개발자 | 장소·인물·채팅·발견 기록 화면, 이미지 자산과 선택 | `templates/`, `public/assets/`, `services/image_selector.py`, `data/images/`, 화면 테스트 |
+| 팀장 (`suyoung` 브랜치) | 장면·호감도·엔딩, 공개 사실 검색, AI 대사, 토큰과 API | `app.py`, `services/story.py`, `services/state_token.py`, `services/chatbot_service.py`, `services/generator.py`, `services/retriever.py`, `config/`, `data/knowledge/`, 서버 테스트 |
+| 팀원 (`yejoon` 브랜치) | 장소·인물·채팅·발견 기록 화면, 이미지 자산과 선택 | `templates/`, `public/assets/`, `services/image_selector.py`, `data/images/`, 화면 테스트 |
 
 `requirements.txt`, `README.md`, `AGENTS.md`, `docs/`는 공유 영역이다. 인터페이스를 바꿀 때 두 사람이 [API 계약](API_CONTRACT.md)을 먼저 갱신한다. 화면 담당자는 계약의 예시 응답으로 화면을 먼저 검증할 수 있다.
 
 ## 브랜치와 순서
 
-원본에서 fork한 팀장 소유 저장소를 기준으로 한다. 두 사람은 `git remote -v`로 자신의 `origin`을 확인하고 각자 브랜치에서 구현한다. 작은 PR을 올리면 팀장이 검토한 뒤 `main`에 병합한다. AI 에이전트에도 파일 경계, 스토리와 API 계약을 전달한다.
+원본에서 fork한 팀장 소유 저장소를 기준으로 한다. 두 사람은 `git remote -v`로 자신의 `origin`을 확인한다. 팀장은 `suyoung`에서 서버·스토리를, 팀원은 `yejoon`에서 화면·이미지를 구현한다. 각각 `main` 대상의 작은 PR을 올리면 팀장이 검토한 뒤 병합한다. AI 에이전트에도 브랜치별 파일 경계, 스토리와 API 계약을 전달한다.
 
 1. 계약·스토리·에이전트 지침을 기준 브랜치에 반영한다.
-2. 서버와 화면을 파일 경계대로 구현한다. 현재 저장소에서 첫 통합 구현은 한 브랜치에 있으며, 이후 변경부터 이 경계를 적용한다.
+2. 서버와 화면을 파일 경계대로 구현한다. 첫 통합 구현은 `main`에 포함되었고, 이후 변경부터 `suyoung`과 `yejoon`의 경계를 적용한다.
 3. 이름 입력부터 세 결말까지, 정보 제한, 중복 점수, 잘못된 토큰, 모델 실패와 화면 복원을 검증한다.
 4. PR 검토·병합 뒤 Render에 배포하고 공개 URL에서 모바일과 새로고침을 재검증한다.
 

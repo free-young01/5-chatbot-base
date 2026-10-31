@@ -13,20 +13,22 @@
       <button id="restart-btn" class="text-button" type="button">처음부터 시작</button>
     </header>
     <main class="story-layout" data-player-name="{{ username }}">
-      <aside class="story-sidebar" aria-label="장소와 행동">
+      <div id="scene-background" class="scene-background" role="img" aria-label="새집 배경"></div>
+      <div class="scene-caption">
         <div class="eyebrow">YOU ARE HERE</div>
         <h1 id="location-title">새집</h1>
-        <div id="scene-background" class="scene-background" role="img" aria-label="현재 장소"></div>
-        <h2>할 수 있는 일</h2>
-        <div id="action-list" class="action-list"></div>
-      </aside>
+        <p id="scene-character">현재 대화 상대: 지미</p>
+      </div>
+      <div class="affinity-card">
+        <span>마을 호감도</span>
+        <output id="affinity-value" aria-label="마을 호감도">70 / 100</output>
+      </div>
+      <img id="character-portrait" class="character-portrait" alt="" hidden>
       <section class="conversation" aria-label="대화">
         <div class="conversation-heading">
-          <div><div class="eyebrow">CONVERSATION</div><h2 id="character-title">이웃을 선택하세요</h2></div>
-          <img id="character-portrait" class="character-portrait" alt="" hidden>
+          <div class="eyebrow">CONVERSATION</div><h2 id="character-title">대화 상대를 기다리는 중</h2>
         </div>
-        <div id="character-list" class="character-list" aria-label="대화 상대"></div>
-        <div id="chat-log" class="chat-log" role="log" aria-live="polite" aria-label="이야기 기록"></div>
+        <div id="chat-log" class="chat-log" role="log" aria-live="off" aria-label="현재 장면과 인물의 대화 기록"></div>
         <p id="status-message" class="status-message" role="status"></p>
         <form id="chat-form" class="chat-input-area">
           <label class="visually-hidden" for="user-message">대화 입력</label>
@@ -34,13 +36,15 @@
           <button id="send-btn" class="send-button" type="submit" disabled>보내기</button>
         </form>
       </section>
-      <aside class="journal" aria-label="주인공의 생각과 단서">
-        <div class="eyebrow">PRIVATE NOTES</div>
-        <h2>나의 생각</h2>
+      <details class="journal">
+        <summary>나의 생각과 단서</summary>
         <p class="journal-intro">대화와 조사를 통해 알게 된 사실이 여기에 기록됩니다.</p>
         <ul id="journal-list"></ul>
         <div id="ending-card" class="ending-card" hidden></div>
-      </aside>
+      </details>
+      <nav class="story-actions" aria-label="할 수 있는 일">
+        <div id="action-list" class="action-list"></div>
+      </nav>
     </main>
   </body>
 </html>

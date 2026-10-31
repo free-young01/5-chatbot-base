@@ -37,7 +37,7 @@ python -m unittest discover -s tests -v
 
 ## 협업과 배포
 
-[구현 명세와 진행 현황](docs/IMPLEMENTATION_SPEC.md), [스토리](docs/STORY.md), [두 개발자의 파일 경계](docs/TEAM_IMPLEMENTATION.md), [AI 에이전트 지침](AGENTS.md)을 함께 본다. 팀장 소유 fork를 기준으로 각자 브랜치와 PR로 작업하며 팀장이 `main`에 병합한다.
+[문서 지도](docs/README.md)에서 베이스 자료와 팀 문서, 사람·AI의 참조 범위를 확인한다. [구현 명세와 진행 현황](docs/IMPLEMENTATION_SPEC.md), [스토리](docs/STORY.md), [두 개발자의 파일 경계](docs/TEAM_IMPLEMENTATION.md), [AI 에이전트 지침](AGENTS.md)을 함께 본다. 팀장 소유 fork를 기준으로 각자 브랜치와 PR로 작업하며 팀장이 `main`에 병합한다.
 
 Render의 Python 웹 서비스는 `pip install -r requirements.txt`로 빌드하고 `gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 app:app`으로 시작한다. 환경 변수에 `OPENAI_API_KEY`, `STORY_STATE_KEY`, `OPENAI_MODEL=gpt-6-luna`, `OPENAI_REASONING_EFFORT=none`을 설정한다. 같은 `STORY_STATE_KEY`를 유지해야 저장한 토큰이 재배포 뒤에도 복원된다. 공개 URL에서 시작부터 세 엔딩, 모바일 화면, 새로고침 복원을 확인한다.
 

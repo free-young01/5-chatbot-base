@@ -1,6 +1,8 @@
 # 대화용 이미지 자료
 
-`public/assets/images/`는 브라우저에 보여줄 실제 이미지 파일을 두는 곳입니다. `public/`은 정적 파일 폴더이고, 메인 페이지는 `templates/`에 있습니다. 현재 이미지 폴더에는 로고만 있습니다. `data/images/`에는 이미지 ID·파일 경로·이름·장면 설명·사용 권한 등을 담은 목록이나 임베딩 인덱스를 둘 수 있습니다. 파일이 `public/assets/images/scene.png`에 있으면 브라우저에 전달할 경로는 `/assets/images/scene.png`입니다. 현재 `data/images/`에는 안내 문서만 있고, 이미지 목록과 인덱스는 없습니다.
+> 초기 베이스 안내 문서다. 현재 프로젝트에는 `catalog.json`과 교체 가능한 임시 SVG 이미지가 있으며, 선택기는 `services/image_selector.py`에 구현되어 있다. 아래 내용 중 초기 상태 설명은 [문서 지도](../../docs/README.md)와 현재 코드를 우선해 읽는다.
+
+`public/assets/images/`는 브라우저에 보여줄 실제 이미지 파일을 두는 곳입니다. `public/`은 정적 파일 폴더이고, 메인 페이지는 `templates/`에 있습니다. 초기 베이스의 이미지 폴더에는 로고만 있었습니다. `data/images/`에는 이미지 ID·파일 경로·이름·장면 설명·사용 권한 등을 담은 목록이나 임베딩 인덱스를 둘 수 있습니다. 파일이 `public/assets/images/scene.png`에 있으면 브라우저에 전달할 경로는 `/assets/images/scene.png`입니다. 현재 프로젝트의 이미지 목록은 `data/images/catalog.json`입니다.
 
 두 폴더의 항목은 목록의 경로로 연결합니다. 예를 들어 `data/images/catalog.json`에 다음처럼 기록할 수 있습니다.
 
@@ -15,7 +17,7 @@
 ]
 ```
 
-이때 실제 파일은 `public/assets/images/joy_01.png`에 둡니다. 이 JSON은 구조를 보여주는 예시이며 현재 제공되는 파일은 아닙니다. 베이스 코드가 자동으로 읽지는 않으므로 팀이 선택 로직에서 불러와야 합니다.
+이때 실제 파일은 `public/assets/images/joy_01.png`에 둡니다. 위 JSON 배열은 초기 베이스에서 제시한 형식 예시이며 현재 프로젝트의 `catalog.json` 구조와는 다릅니다. 현재 선택기는 실제 `catalog.json`을 읽습니다.
 
 먼저 팀이 사용할 이미지마다 장면 설명을 붙이고, 간단한 상황별 규칙으로 이미지 출력과 생략을 확인할 수 있습니다. 이후 팀이 고른 이미지와 직접 작성한 테스트 답변 문장으로 선택 결과를 점검합니다.
 

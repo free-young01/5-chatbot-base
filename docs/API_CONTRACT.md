@@ -1,4 +1,4 @@
-# 더뉴빌리지로 오세요 — 화면·서버 API 계약 v2
+# 더뉴빌리지로 오세요 — 화면·서버 API 계약 v3
 
 > 분류: 팀 신규 · 독자: 두 개발자와 구현 AI 에이전트 · 실행 중 대화 모델의 입력: 아님. [문서 지도](README.md)
 
@@ -15,9 +15,11 @@
   "view": {
     "scene_id": "arrival",
     "location_id": "player_house",
+    "location_name": "새집",
     "background": "/assets/images/player_house.svg",
     "available_characters": [{"id": "jimmy", "name": "지미", "portrait": "/assets/images/jimmy_neutral.svg"}],
     "available_actions": [{"id": "visit_neighbors", "label": "이웃들에게 인사하러 간다", "kind": "move"}],
+    "affinity": 70,
     "journal": [],
     "ending": null
   }
@@ -26,8 +28,10 @@
 
 - `state_token`은 암호화된 진행 기록이다. 화면은 같은 브라우저의 `localStorage`에 저장하고 **모든 후속 요청에 그대로 보낸다**. 이 값을 URL에 넣거나 수정하지 않는다. 서버가 재시작해도 같은 `STORY_STATE_KEY`가 설정되어 있으면 복원할 수 있다.
 - `events`는 이번 요청에서 새로 생긴 메시지다. `speaker_id`는 `jimmy`, `karen`, `bob`, `cathy`, `narrator`, `thought` 중 하나이고 `image`는 공개 URL 또는 `null`이다. 사용자의 입력은 화면이 표시한다.
-- `view`에는 현재 장면·장소와 공개 가능한 선택지만 들어간다. `available_actions.kind`는 `move`, `inspect`, `choice` 중 하나다. `ending`은 `null`, `escape`, `death`, `assimilation` 중 하나다. 엔딩 후에는 대화 상대와 행동 목록이 비어 있다.
-- 호감도, 차 키, 미래 단서, 인물별 비밀은 `view`로 보내지 않는다. 이미 발견한 사실만 `journal`에 나타낸다.
+- `view`에는 현재 장면·장소 이름과 배경, 공개 가능한 선택지가 들어간다. `available_characters`는 현재 장소에서 대화할 수 있는 인물 최대 한 명이다. 새집에서는 해당 장면의 인물이 먼저 찾아온다. 축제 광장의 대화 상대는 밥이다.
+- `affinity`는 공개되는 마을 호감도 정수(0~100)다. 화면은 이 값을 그대로 표시하고 점수나 일자리 여부를 직접 계산하지 않는다. `available_actions.kind`는 `move`, `inspect`, `choice` 중 하나다. `ending`은 `null`, `escape`, `death`, `assimilation` 중 하나다. 엔딩 후에는 대화 상대와 행동 목록이 비어 있다.
+- 차 키, 미래 단서, 인물별 비밀은 `view`로 보내지 않는다. 이미 발견한 사실만 `journal`에 나타낸다.
+- 화면은 장소 이미지를 큰 배경으로 사용하고 현재 인물을 그 위에 표시한다. 현재 장면의 사건 대사와 해당 인물의 자유 대화는 같은 대화창에 시간순으로 보여준다. 다른 인물의 과거 대화는 섞지 않는다. 행동 선택지는 화면 중앙 하단에 놓는다.
 - URL은 `/assets/images/...` 형식이며 실제 파일이 `public/assets/images/`에 있어야 한다.
 
 ## 요청
@@ -40,6 +44,8 @@
 | `POST /api/action` | `{"state_token":"...","action_id":"visit_neighbors"}` | `200` | 직전 `view.available_actions`에 있는 ID만 실행 |
 
 대화 입력은 AI 대사와 제한된 호감도 변화만 만든다. 장면 이동, 단서 획득, 차 키, 엔딩은 `action_id`로만 처리한다. 화면은 요청 중 다른 요청을 보내지 않고, 성공 응답의 새 토큰으로 이전 토큰을 교체한다. 모델 실패 시 이전 토큰을 유지한다.
+
+마을 호감도는 인물 사이에 공유된다. 한 인물과의 대화로 점수가 바뀌면 이후 다른 인물의 대사 태도에도 반영한다. 인물별 최근 대화는 진행 토큰에 따로 보관해 같은 인물을 다시 만났을 때 이어 쓴다. 사진 사건 뒤 귀가할 때의 일자리 판정은 그 시점에 고정하고 이후 대화로 바꾸지 않는다.
 
 ## 오류
 

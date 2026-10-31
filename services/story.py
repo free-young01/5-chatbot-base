@@ -32,6 +32,7 @@ def new_state(player_name: str) -> dict:
         "affinity": START_SCORE,
         "scored_chat": [],
         "has_car_key": False,
+        "job_offered": None,
         "ending": None,
         "history": {},
     }
@@ -45,6 +46,8 @@ def available_characters(state: dict) -> list[str]:
     scene = state["scene_id"]
     if scene in {"arrival", "cathy_task", "dinner_invite"}:
         return ["jimmy"]
+    if scene == "jimmy_butcher":
+        return ["karen"]
     if scene == "neighbors":
         return {
             "karen_house": ["karen"],
@@ -57,10 +60,12 @@ def available_characters(state: dict) -> list[str]:
         return ["jimmy"]
     if scene == "bob_caught" or scene == "festival_invite":
         return ["bob"]
-    if scene in {"karen_dinner", "photo_found", "checkpoint"}:
-        return ["karen"] if state["location_id"] == "karen_house" or scene == "checkpoint" else []
+    if scene in {"karen_dinner", "photo_found"}:
+        return ["karen"]
+    if scene == "checkpoint":
+        return ["karen"] if state.get("job_offered", state["affinity"] >= JOB_THRESHOLD) else []
     if scene in {"festival", "hair_found"}:
-        return ["karen", "bob", "cathy"]
+        return ["bob"]
     return []
 
 
@@ -100,7 +105,7 @@ def available_actions(state: dict) -> list[dict]:
     if scene == "photo_found":
         return [_action("return_home", "집으로 돌아간다", "move")]
     if scene == "checkpoint":
-        if state["affinity"] >= JOB_THRESHOLD:
+        if state.get("job_offered", state["affinity"] >= JOB_THRESHOLD):
             return [
                 _action("accept_job", "유통 운전 일을 수락한다", "choice"),
                 _action("decline_job", "일자리를 거절한다", "choice"),
@@ -123,6 +128,7 @@ def view(state: dict) -> dict:
     return {
         "scene_id": state["scene_id"],
         "location_id": state["location_id"],
+        "location_name": LOCATIONS[state["location_id"]],
         "background": f"/assets/images/{state['location_id']}.svg",
         "available_characters": [
             {
@@ -133,6 +139,7 @@ def view(state: dict) -> dict:
             for character_id in characters
         ],
         "available_actions": available_actions(state),
+        "affinity": state["affinity"],
         "journal": state["journal"],
         "ending": state["ending"],
     }
@@ -148,7 +155,7 @@ def apply_action(state: dict, action_id: str) -> tuple[dict, list[dict]]:
 
     if scene == "arrival":
         next_state.update(scene_id="neighbors", location_id="square")
-        events.append(event("jimmy", "캐런, 밥, 캐시에게 인사해 봐. 모두 좋은 사람들이야."))
+        events.append(event("thought", "지미의 권유대로 광장에 나왔다. 캐런, 밥, 캐시에게 차례로 인사해 보자."))
     elif scene == "neighbors":
         destination = {
             "visit_karen": ("karen_house", "karen"),
@@ -159,11 +166,15 @@ def apply_action(state: dict, action_id: str) -> tuple[dict, list[dict]]:
             next_state["location_id"] = destination[0]
             if destination[1] not in next_state["visited"]:
                 next_state["visited"].append(destination[1])
-            greetings = {
+            greetings = ({
+                "karen": "어서 오세요. 마을 이야기는 조금씩 알게 되실 거예요.",
+                "bob": "새 손님이군. 가게에서는 구경만 하시오.",
+                "cathy": "반가워요. 다들 새 이웃을 유심히 보고 있답니다.",
+            } if next_state["affinity"] < JOB_THRESHOLD else {
                 "karen": "어머, 새로 오신 분이군요. 우리 마을은 모두 가족 같답니다.",
                 "bob": "고기 좋아하쇼? 다음 주 축제 때 꼭 들르시게.",
                 "cathy": "반가워요. 시간이 되면 미용실에도 들러 주세요.",
-            }
+            })
             events.append(event(destination[1], greetings[destination[1]]))
         else:
             next_state.update(scene_id="cathy_task", location_id="player_house")
@@ -175,9 +186,7 @@ def apply_action(state: dict, action_id: str) -> tuple[dict, list[dict]]:
         next_state.update(scene_id="jimmy_butcher", location_id="player_house")
         next_state["affinity"] = min(100, next_state["affinity"] + 5)
         events += [
-            event("cathy", "고마워요. 새로 오신 분이 이렇게 도와주시다니."),
-            event("thought", "캐시가 내 반응을 유심히 살피는 것 같았다."),
-            event("jimmy", "나 정육점에 다녀올게."),
+            event("thought", "캐시를 돕고 돌아오는 길에 지미가 정육점으로 향했다. 캐시는 끝까지 내 반응을 살피는 듯했다."),
             event("karen", "혹시 지미를 보셨나요?"),
         ]
     elif scene == "jimmy_butcher":
@@ -215,7 +224,8 @@ def apply_action(state: dict, action_id: str) -> tuple[dict, list[dict]]:
         ]
     elif scene == "photo_found":
         next_state.update(scene_id="checkpoint", location_id="player_house")
-        if next_state["affinity"] >= JOB_THRESHOLD:
+        next_state["job_offered"] = next_state["affinity"] >= JOB_THRESHOLD
+        if next_state["job_offered"]:
             events.append(event("karen", "내일부터 유통 운전 일을 맡아 주시겠어요? 차 키도 드리죠."))
         else:
             events.append(event("thought", "캐런은 일자리를 권하지 않았다. 누군가 집 앞을 지키고 있었다."))

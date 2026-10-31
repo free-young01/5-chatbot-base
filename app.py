@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, url_for
 
 from services import ChatbotService
+from services.state_token import InvalidStateToken
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -75,38 +76,77 @@ def chat():
     return render_template("chat.html", bot=bot_view(load_config()), username=username)
 
 
-@app.post("/api/chat")
-def api_chat():
+def json_payload():
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
-        return error_response("invalid_json", "JSON 객체를 보내주세요.", 400)
+        return None
+    return payload
 
+
+def service_response(operation, *args):
+    try:
+        return jsonify(operation(*args))
+    except InvalidStateToken:
+        return error_response("invalid_state_token", "진행 기록을 열 수 없습니다. 새로 시작해 주세요.", 400)
+    except ValueError as exc:
+        code = str(exc)
+        if code in {"invalid_action", "character_unavailable", "story_finished"}:
+            return error_response(code, "지금은 이 행동을 할 수 없습니다.", 409)
+        app.logger.exception("스토리 값 처리 실패")
+        return error_response("chat_failed", "요청을 처리하지 못했습니다. 다시 시도해 주세요.", 500)
+    except Exception:
+        app.logger.exception("스토리 요청 실패")
+        return error_response("chat_failed", "요청을 처리하지 못했습니다. 다시 시도해 주세요.", 500)
+
+
+@app.post("/api/session")
+def api_session():
+    payload = json_payload()
+    if payload is None:
+        return error_response("invalid_request", "JSON 객체를 보내주세요.", 400)
+    name = payload.get("player_name")
+    if not isinstance(name, str) or not name.strip() or len(name.strip()) > 50:
+        return error_response("invalid_request", "이름을 1~50자로 입력해 주세요.", 400)
+    response = service_response(chatbot.start, name.strip())
+    if isinstance(response, tuple):
+        return response
+    response.status_code = 201
+    return response
+
+
+@app.post("/api/session/resume")
+def api_session_resume():
+    payload = json_payload()
+    if payload is None:
+        return error_response("invalid_request", "JSON 객체를 보내주세요.", 400)
+    return service_response(chatbot.resume, payload.get("state_token"))
+
+
+@app.post("/api/chat")
+def api_chat():
+    payload = json_payload()
+    if payload is None:
+        return error_response("invalid_request", "JSON 객체를 보내주세요.", 400)
     message = payload.get("message")
     if not isinstance(message, str) or not message.strip():
-        return error_response("invalid_message", "메시지를 입력해주세요.", 400)
-    message = message.strip()
-    if len(message) > 2000:
-        return error_response("message_too_long", "메시지는 2000자 이하로 입력해주세요.", 413)
+        return error_response("invalid_message", "메시지를 입력해 주세요.", 400)
+    if len(message.strip()) > 2000:
+        return error_response("message_too_long", "메시지는 2000자 이하로 입력해 주세요.", 413)
+    character_id = payload.get("character_id")
+    if not isinstance(character_id, str):
+        return error_response("invalid_request", "대화 상대를 선택해 주세요.", 400)
+    return service_response(chatbot.chat, payload.get("state_token"), character_id, message.strip(), load_config())
 
-    username = payload.get("username", "사용자")
-    if not isinstance(username, str):
-        return error_response("invalid_username", "이름은 문자열이어야 합니다.", 400)
-    username = username.strip()[:50] or "사용자"
 
-    try:
-        response = chatbot.generate_response(message, username, load_config())
-        if not isinstance(response, dict) or not isinstance(response.get("reply"), str):
-            raise TypeError("챗봇 응답에는 문자열 reply가 필요합니다.")
-        image = response.get("image")
-        if image is not None and not isinstance(image, str):
-            raise TypeError("image는 URL 문자열 또는 null이어야 합니다.")
-        sources = response.get("sources", [])
-        if not isinstance(sources, list) or not all(isinstance(source, str) for source in sources):
-            raise TypeError("sources는 출처 이름 문자열의 목록이어야 합니다.")
-        return jsonify({"reply": response["reply"], "image": image, "sources": sources})
-    except Exception:
-        app.logger.exception("챗봇 응답 생성 실패")
-        return error_response("chat_failed", "답변을 생성하지 못했습니다. 다시 시도해주세요.", 500)
+@app.post("/api/action")
+def api_action():
+    payload = json_payload()
+    if payload is None:
+        return error_response("invalid_request", "JSON 객체를 보내주세요.", 400)
+    action_id = payload.get("action_id")
+    if not isinstance(action_id, str):
+        return error_response("invalid_request", "행동을 선택해 주세요.", 400)
+    return service_response(chatbot.action, payload.get("state_token"), action_id)
 
 
 @app.get("/health")

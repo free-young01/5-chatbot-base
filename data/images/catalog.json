@@ -1,0 +1,22 @@
+{
+  "jimmy": {
+    "neutral": "/assets/images/jimmy_neutral.svg",
+    "smile": "/assets/images/jimmy_smile.svg",
+    "worried": "/assets/images/jimmy_worried.svg"
+  },
+  "karen": {
+    "neutral": "/assets/images/karen_neutral.svg",
+    "smile": "/assets/images/karen_smile.svg",
+    "worried": "/assets/images/karen_worried.svg"
+  },
+  "bob": {
+    "neutral": "/assets/images/bob_neutral.svg",
+    "smile": "/assets/images/bob_smile.svg",
+    "worried": "/assets/images/bob_worried.svg"
+  },
+  "cathy": {
+    "neutral": "/assets/images/cathy_neutral.svg",
+    "smile": "/assets/images/cathy_smile.svg",
+    "worried": "/assets/images/cathy_worried.svg"
+  }
+}

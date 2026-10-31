@@ -1,5 +1,7 @@
 # Render 배포 가이드
 
+> 더뉴빌리지의 실제 실행·환경 변수는 [프로젝트 README](../README.md)를 우선한다. 아래는 베이스 저장소의 일반적인 Render 설정 참고 자료다. 이 프로젝트는 `OPENAI_API_KEY`와 `STORY_STATE_KEY`가 모두 필요하며, 기존 진행을 복원하려면 재배포 뒤에도 동일한 `STORY_STATE_KEY`를 유지해야 한다.
+
 현재 베이스를 Render의 공개 웹 서비스로 배포하는 절차입니다. 기본 Flask 앱을 그대로 쓰는 **Python 런타임**과 Docker를 선택하는 **Docker 런타임**을 안내합니다. 두 방법 중 하나만 고르면 됩니다. Render 화면의 이름이나 제공 조건은 바뀔 수 있으므로 배포 전에 [Render Flask 가이드](https://render.com/docs/deploy-flask)와 [웹 서비스 문서](https://render.com/docs/web-services)도 확인하세요.
 
 ## 1. 배포 전 확인

@@ -13,7 +13,7 @@
         <a class="close-button" href="{{ url_for('index') }}" aria-label="처음으로 돌아가기">&times;</a>
       </header>
       <div class="modal-content">
-        <img class="bot-image" src="{{ bot.image }}" alt="{{ bot.name }} 대표 이미지">
+        <img class="bot-image" src="{{ bot.image }}" alt="더뉴빌리지 소개 이미지">
         <p class="bot-description">{{ bot.description }}</p>
         {% if bot.tags %}
         <ul class="tags" aria-label="캐릭터 태그">
@@ -23,9 +23,9 @@
         <form class="start-form" action="{{ url_for('chat') }}" method="get">
           <div class="username-area">
             <label for="username">이름:</label>
-            <input id="username" name="username" type="text" maxlength="50" placeholder="이름을 입력하세요" autocomplete="nickname">
+            <input id="username" name="username" type="text" maxlength="50" placeholder="당신의 이름" autocomplete="nickname" required>
           </div>
-          <button class="start-chat" type="submit">채팅 시작하기</button>
+          <button class="start-chat" type="submit">이웃 만나기</button>
         </form>
       </div>
     </main>

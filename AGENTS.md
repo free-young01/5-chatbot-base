@@ -4,12 +4,14 @@
 
 ## 먼저 읽을 문서
 
-1. `docs/STORY.md`: 확정된 인물·장면·엔딩과 협의 중인 이야기 요소.
-2. `docs/API_CONTRACT.md`: 화면·서버 및 이미지 선택기의 고정 인터페이스.
-3. `docs/TEAM_IMPLEMENTATION.md`: 구현 순서, 담당 영역, PR 절차.
-4. 해당 작업에 영향을 주는 기존 `README.md`, `docs/PROJECT_GUIDE.md`, 코드와 테스트.
+1. `docs/README.md`: 베이스·팀 문서의 출처와 독자, 대화 모델의 실제 입력.
+2. `docs/IMPLEMENTATION_SPEC.md`: 초기 베이스 대비 기능, 담당자, 현재 상태와 다음 작업.
+3. `docs/STORY.md`: 확정된 인물·장면·엔딩.
+4. `docs/API_CONTRACT.md`: 화면·서버 및 이미지 선택기의 고정 인터페이스.
+5. `docs/TEAM_IMPLEMENTATION.md`: 구현 순서, 담당 영역, PR 절차.
+6. 해당 작업에 영향을 주는 기존 `README.md`, `docs/PROJECT_GUIDE.md`, 코드와 테스트.
 
-`docs/STORY.md`에서 **협의 중**이라고 표시한 내용을 임의로 확정하지 않는다. 차 키 획득 방식, 지하실 단서, 호감도 검사 시점·기준, 캐시의 역할 등은 사용자가 결정할 때까지 변경 가능한 설정이나 명시적인 임시 장면으로만 다룬다. 미정인 요소가 현재 작업을 막지 않으면 확정된 구간부터 구현한다.
+스토리의 핵심 사건과 세 엔딩은 `docs/STORY.md`를 기준으로 유지한다. 호감도 기준은 시연 후 조정할 수 있도록 설정값으로 둔다.
 
 ## 구현 원칙
 

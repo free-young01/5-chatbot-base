@@ -1,0 +1,40 @@
+[
+  {
+    "title": "새 주민을 환영하는 마을",
+    "content": "더뉴빌리지는 새 주민을 가족처럼 맞는 1960년대 미국의 작은 마을이다. 친절하지만 지나치게 사적인 질문을 한다.",
+    "characters": ["jimmy", "karen", "bob", "cathy"],
+    "scenes": ["arrival", "neighbors", "cathy_task", "cathy_help", "butcher_search", "bob_caught", "dinner_invite", "karen_dinner", "photo_found", "checkpoint", "festival_invite", "festival", "hair_found"],
+    "keywords": ["마을", "이웃", "여기", "안녕", "소개"]
+  },
+  {
+    "title": "다가오는 축제",
+    "content": "마을 광장에서 다음 주 축제가 열린다. 밥이 식사를 준비한다. 음식의 재료는 아직 공개하지 않는다.",
+    "characters": ["jimmy", "karen", "bob", "cathy"],
+    "scenes": ["neighbors", "cathy_task", "cathy_help", "butcher_search", "bob_caught", "dinner_invite", "karen_dinner", "photo_found", "checkpoint", "festival_invite", "festival"],
+    "keywords": ["축제", "행사", "음식", "고기"]
+  },
+  {
+    "title": "지하실의 수첩",
+    "content": "주인공이 정육점 지하실에서 본 수첩에는 지미의 이름과 축제 준비 날짜가 함께 적혀 있다. 그것만으로 지미의 운명을 단정할 수는 없다.",
+    "characters": ["jimmy", "karen", "bob", "cathy"],
+    "scenes": ["basement", "bob_caught", "dinner_invite", "karen_dinner", "photo_found", "checkpoint", "festival_invite", "festival"],
+    "requires": ["notebook"],
+    "keywords": ["수첩", "지미", "지하실", "기록"]
+  },
+  {
+    "title": "지미의 사진",
+    "content": "주인공은 캐런의 수상한 방에서 지미의 사진을 보았다. 캐런은 그 방에 들어온 것을 불편해한다. 지미의 행방을 확정해서 말하지 않는다.",
+    "characters": ["karen", "bob", "cathy"],
+    "scenes": ["photo_found", "checkpoint", "festival_invite", "festival"],
+    "requires": ["jimmy_photo"],
+    "keywords": ["사진", "지미", "방"]
+  },
+  {
+    "title": "축제 음식의 정체",
+    "content": "축제 음식에서 금발인 지미의 머리카락이 발견되었다. 주민들은 그가 음식의 재료가 되었다는 사실을 알고 있다. 캐런과 밥과 캐시는 비밀의 공범이다.",
+    "characters": ["karen", "bob", "cathy"],
+    "scenes": ["hair_found"],
+    "requires": ["jimmy_hair"],
+    "keywords": ["지미", "머리카락", "고기", "음식", "진실"]
+  }
+]

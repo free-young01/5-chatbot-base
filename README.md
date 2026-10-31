@@ -39,6 +39,6 @@ python -m unittest discover -s tests -v
 
 [문서 지도](docs/README.md)에서 베이스 자료와 팀 문서, 사람·AI의 참조 범위를 확인한다. [구현 명세와 진행 현황](docs/IMPLEMENTATION_SPEC.md), [스토리](docs/STORY.md), [두 개발자의 파일 경계](docs/TEAM_IMPLEMENTATION.md), [AI 에이전트 지침](AGENTS.md)을 함께 본다. 팀장 소유 fork를 기준으로 팀장은 `suyoung`에서 서버·스토리를, 팀원은 `yejoon`에서 화면·이미지를 맡는다. 각자 `main` 대상 PR을 올리고 팀장이 검토·병합한다.
 
-공개 시연 주소는 아직 확인 전이다. [`render.yaml`](render.yaml)은 `main`의 무료 Python 웹 서비스를 정의한다. 팀장은 [Render 배포 안내](docs/RENDER-GUIDE.md)에 따라 서비스를 만들고 `OPENAI_API_KEY`를 Render에서만 입력한다. Render가 만든 `STORY_STATE_KEY`는 유지해야 재배포 뒤에도 이어할 수 있다. 배포 후 주소를 이곳에 기록하고 [프로듀서 시연 안내](docs/PRODUCER_TEST_GUIDE.md)에 따라 세 결말, 모바일 화면, 새로고침 복원을 확인한다.
+**공개 시연 주소:** [더뉴빌리지 챗봇](https://chatbot-bb1234.onrender.com/). 첫 화면, 실제 대화 한 번, 첫 이동, 새로고침 뒤 이어하기와 `/health` 응답을 확인했다. 세 결말의 브라우저 흐름, 모바일, Render 재배포 뒤 복원은 아직 확인 전이다. 팀장이 직접 만든 Render 서비스의 실제 설정은 [Render 배포 안내](docs/RENDER-GUIDE.md)를 참고해 점검한다. [`render.yaml`](render.yaml)은 이후 같은 서비스를 다시 만들 때 참고할 설정이며, 기존 서비스에 중복 적용하지 않는다. `STORY_STATE_KEY`를 바꾸면 기존 이어하기 기록이 열리지 않는다. 프로듀서는 [시연 안내](docs/PRODUCER_TEST_GUIDE.md)를 따른다.
 
 기존 베이스 프로젝트의 상세 참고 문서는 `docs/`에 남겨 두었다. 이 프로젝트의 실제 API와 실행 방법은 이 README 및 [API 계약서](docs/API_CONTRACT.md)를 기준으로 한다.

@@ -6,7 +6,7 @@ from .generator import StoryGenerator
 from .image_selector import StoryImageSelector
 from .retriever import StoryRetriever
 from .state_token import decode_state, encode_state
-from .story import apply_action, available_characters, event, new_state, view
+from .story import LOCATIONS, apply_action, available_characters, event, new_state, view
 
 
 class ChatbotService:
@@ -43,7 +43,8 @@ class ChatbotService:
         knowledge = self.retriever.search(message, character_id, state["scene_id"], state["clues"])
         history = state["history"].get(character_id, [])
         turn = self.generator.generate(
-            message, state["player_name"], config["characters"][character_id], knowledge, history
+            message, state["player_name"], config["characters"][character_id], knowledge, history,
+            LOCATIONS[state["location_id"]], state["affinity"],
         )
         next_state = deepcopy(state)
         attitude = turn["attitude"]
@@ -51,10 +52,11 @@ class ChatbotService:
         if attitude != "neutral" and score_key not in next_state["scored_chat"]:
             next_state["affinity"] = max(0, min(100, next_state["affinity"] + (5 if attitude == "cooperative" else -5)))
             next_state["scored_chat"].append(score_key)
+        # shortcut: 인물마다 최근 10번의 대화만 보관, 긴 대화 기억이 필요하면 요약을 추가한다.
         next_state["history"][character_id] = (history + [
             {"role": "user", "content": message[:500]},
             {"role": "assistant", "content": turn["reply"][:500]},
-        ])[-12:]
+        ])[-20:]
         image = self.image_selector.select(
             turn["reply"], character_id, state["scene_id"], turn["visual_cue"]
         )

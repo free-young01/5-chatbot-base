@@ -694,6 +694,10 @@ class StoryTest(unittest.TestCase):
         self.assertIn("캐런이 내일 저녁 식사에 초대", invitation["events"][0]["text"])
         self.assertEqual(invitation["events"][0]["text"], "캐런이 내일 저녁 식사에 초대했어.. 같이 가자.. 내일 6시까지 여기로 올게..")
         self.assertIn("데리러", invitation["view"]["available_actions"][0]["label"])
+        with patch.object(chatbot.generator, "classify", return_value="friendly"), patch.object(chatbot.generator, "generate", return_value={"reply": "고마워.", "visual_cue": "worried"}) as generate:
+            response = self.client.post("/api/chat", json={"state_token": self.token, "character_id": "jimmy", "message": "지미, 멋져요"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(generate.call_args.kwargs["scene_id"], "dinner_invite")
         wait = self.action("accept_dinner_invite")
         self.assertEqual(wait["events"][0]["text"], "다음 날 7시가 되도록 지미는 나타나지 않았다.")
         self.assertIn("혼자", wait["view"]["available_actions"][0]["label"])

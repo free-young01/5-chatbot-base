@@ -10,12 +10,41 @@ from services.generator import StoryGenerator
 
 
 class GeneratorTest(unittest.TestCase):
+    def test_jimmy_stays_shaken_after_butcher_even_when_praised(self):
+        jimmy = json.loads((Path(__file__).resolve().parents[1] / "config" / "chatbot_config.json").read_text(encoding="utf-8"))["characters"]["jimmy"]
+        answer = {"reply": "고마워.", "visual_cue": "smile"}
+        with patch("services.generator.OpenAI") as client:
+            client.return_value.responses.create.return_value = SimpleNamespace(status="completed", output_text=json.dumps(answer))
+            for scene_id in ("butcher_search", "dinner_invite"):
+                with self.subTest(scene_id=scene_id):
+                    turn = StoryGenerator().generate("지미, 정말 멋져!", "알렉스", jimmy, [], [], "새집", 90, [],
+                                                     ("지미가 사색이 됐다", "지미는 비밀을 알았다", "비밀을 밝히지 않는다"), scene_id)
+                    instructions = client.return_value.responses.create.call_args.kwargs["instructions"]
+                    self.assertIn("칭찬이나 높은 호감도에도 풀리지 않습니다", instructions)
+                    self.assertIn("짧고 힘없이", instructions)
+                    self.assertIn("비밀의 내용은 아직 밝히지 마세요", instructions)
+                    self.assertEqual(turn["visual_cue"], "worried")
+            before = StoryGenerator().generate("지미, 정말 멋져!", "알렉스", jimmy, [], [], "새집", 90, [],
+                                               ("정육점에 가기 전", "지미는 아직 모른다", "미래 비밀"), "jimmy_butcher")
+        self.assertNotIn("칭찬이나 높은 호감도에도 풀리지 않습니다", client.return_value.responses.create.call_args.kwargs["instructions"])
+        self.assertEqual(before["visual_cue"], "smile")
+
+    def test_reply_uses_spoken_lines_without_list_markers(self):
+        answer = {"reply": "- 안녕하세요.\n— 고기-채소는 다 준비했어요.", "visual_cue": "smile"}
+        with patch("services.generator.OpenAI") as client:
+            client.return_value.responses.create.return_value = SimpleNamespace(status="completed", output_text=json.dumps(answer))
+            turn = StoryGenerator().generate("준비됐나요?", "알렉스", {"name": "밥", "persona": {}}, [], [], "정육점", 50, [], ("방문", "가게 주인", "비밀"), "neighbors")
+        self.assertEqual(turn["reply"], "안녕하세요.\n고기-채소는 다 준비했어요.")
+        instructions = client.return_value.responses.create.call_args.kwargs["instructions"]
+        self.assertIn("인물이 실제로 말하는 문장만", instructions)
+        self.assertIn("목록 기호(-, *, •)", instructions)
+
     def test_karen_keeps_composed_persona_and_never_outputs_her_old_laugh(self):
         config = json.loads((Path(__file__).resolve().parents[1] / "config" / "chatbot_config.json").read_text(encoding="utf-8"))
         karen = config["characters"]["karen"]
         with patch("services.generator.OpenAI") as client:
             client.return_value.responses.create.return_value = SimpleNamespace(status="completed", output_text=json.dumps({"reply":"마음을 내주셔서 고마워요. 후후.","visual_cue":"smile"}))
-            turn = StoryGenerator().generate("일을 도울게요", "확인", karen, [], [], "새집", 65, [], ("일자리 권유", "마을의 일", "이후 사건"))
+            turn = StoryGenerator().generate("일을 도울게요", "확인", karen, [], [], "새집", 65, [], ("일자리 권유", "마을의 일", "이후 사건"), "checkpoint")
         self.assertNotIn("후후", turn["reply"])
         self.assertEqual(turn["reply"], "마음을 내주셔서 고마워요.")
         self.assertIn("짧고 단호", client.return_value.responses.create.call_args.kwargs["instructions"])
@@ -34,7 +63,7 @@ class GeneratorTest(unittest.TestCase):
                 with self.subTest(line=line):
                     StoryGenerator().generate("왜?", "알렉스", {"name": character, "persona": {}}, [], history,
                                               "새집", 50, [{"speaker_id": character, "text": line}],
-                                              (observation, "현재 아는 사실", "미래 비밀 비공개"))
+                                              (observation, "현재 아는 사실", "미래 비밀 비공개"), "jimmy_butcher")
                     messages = client.return_value.responses.create.call_args.kwargs["input"]
                     self.assertEqual(messages[:2], history)
                     self.assertEqual(messages[-2]["role"], "developer")
@@ -54,7 +83,7 @@ class GeneratorTest(unittest.TestCase):
         with patch("services.generator.OpenAI") as client:
             client.return_value.responses.create.return_value = SimpleNamespace(status="completed", output_text=json.dumps(answer))
             result = StoryGenerator().generate("내 취향 기억해?", "알렉스", {"name": "밥", "persona": {}}, [], history, "정육점", 25,
-                                               [{"speaker_id": "bob", "text": "고기 좋아하쇼?"}], ("가게 방문", "밥은 가게 주인", "비밀"))
+                                               [{"speaker_id": "bob", "text": "고기 좋아하쇼?"}], ("가게 방문", "밥은 가게 주인", "비밀"), "neighbors")
         self.assertEqual(result, answer)
         request = client.return_value.responses.create.call_args.kwargs
         self.assertIn("정육점", request["instructions"])
@@ -79,7 +108,7 @@ class GeneratorTest(unittest.TestCase):
             client.return_value.responses.create.return_value = SimpleNamespace(status="completed", output_text=json.dumps(answer))
             for score, stage in ((20, "경계:"), (50, "평소:"), (70, "환대:")):
                 with self.subTest(score=score):
-                    StoryGenerator().generate("안녕하세요", "알렉스", {"name": "캐런", "persona": {"speaking_style": "정중하고 밝게"}}, [], [], "캐런의 집", score, [], ("방문", "주민대표", "미래 사건"))
+                    StoryGenerator().generate("안녕하세요", "알렉스", {"name": "캐런", "persona": {"speaking_style": "정중하고 밝게"}}, [], [], "캐런의 집", score, [], ("방문", "주민대표", "미래 사건"), "neighbors")
                     instructions = client.return_value.responses.create.call_args.kwargs["instructions"]
                     self.assertIn(stage, instructions)
                     self.assertIn("정중하고 밝게", instructions)

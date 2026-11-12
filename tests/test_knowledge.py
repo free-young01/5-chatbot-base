@@ -37,7 +37,7 @@ class KnowledgeTest(unittest.TestCase):
         answer = {"reply": "밥은 정육점과 식당을 하고, 캐시는 미용사예요.", "visual_cue": "smile"}
         with patch("services.generator.OpenAI") as client:
             client.return_value.responses.create.return_value = SimpleNamespace(status="completed", output_text=json.dumps(answer))
-            StoryGenerator().generate(question, "알렉스", {"name": "캐런", "persona": {}}, knowledge, [], "캐런의 집", 50, [], ("방문", "주민대표", "미래 사건은 말하지 않음"))
+            StoryGenerator().generate(question, "알렉스", {"name": "캐런", "persona": {}}, knowledge, [], "캐런의 집", 50, [], ("방문", "주민대표", "미래 사건은 말하지 않음"), "neighbors")
         instructions = client.return_value.responses.create.call_args.kwargs["instructions"]
         self.assertIn("마을 주민 소개", instructions)
         self.assertIn("주황빛 적갈색", instructions)

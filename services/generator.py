@@ -73,12 +73,14 @@ class StoryGenerator:
         affinity: int,
         scene_events: list[dict],
         scene_context: tuple[str, str, str],
+        scene_id: str,
     ) -> dict:
         effort = os.getenv("OPENAI_REASONING_EFFORT", "none")
         if effort not in ALLOWED_REASONING_EFFORTS:
             raise ValueError("OPENAI_REASONING_EFFORT must be none, low, or medium.")
 
         persona = character.get("persona", {})
+        jimmy_shaken = character["name"] == "지미" and scene_id in {"butcher_search", "dinner_invite"}
         village_attitude = (
             "경계: 원래의 성격과 말투를 유지하되 대답을 짧게 하고 거리를 두세요. 캐런은 정중하고 밝은 겉모습을 유지하세요"
             if affinity < WARY_SCORE else
@@ -98,6 +100,12 @@ class StoryGenerator:
             "reply에는 인물이 실제로 말하는 문장만 쓰세요. 목록 기호(-, *, •), 제목, 강조 표시, 행동 설명, 화자 이름을 넣지 말고 문장은 일반 문장부호로 이어 쓰세요. "
             "visual_cue는 호감도 판정과 별개로 실제 답변의 표정을 나타냅니다. 캐런·캐시가 친절하게 맞이하거나 호의적으로 답하면 smile, 불안하거나 화가 나면 worried를 고르세요. 호감도가 올랐다는 이유만으로 웃게 하지 마세요. 경계 단계의 캐런도 겉으로 웃을 수 있습니다."
         )
+        if jimmy_shaken:
+            instructions += (
+                "\n지미는 정육점 지하실에서 무언가를 알고 겁에 질린 뒤입니다. 이 상태는 칭찬이나 높은 호감도에도 풀리지 않습니다. "
+                "짧고 힘없이, 주저하며 낮은 말투로 답하세요. 신난 감탄, 활기찬 반응, 농담을 하지 마세요. "
+                "고마운 말은 짧게 받을 수 있지만 계속 두려워해야 합니다. 비밀의 내용은 아직 밝히지 마세요. visual_cue는 worried입니다."
+            )
 
         if scene_events:
             lines = "\n".join(
@@ -157,4 +165,6 @@ class StoryGenerator:
             raise RuntimeError("모델 응답 형식이 올바르지 않습니다.") from exc
         if character["name"] == "캐런":
             turn["reply"] = re.sub(r"[,，]?\s*후후[.…!~,，]*", "", turn["reply"]).strip() or "편하게 말씀해 주세요."
+        if jimmy_shaken:
+            turn["visual_cue"] = "worried"
         return turn

@@ -107,7 +107,7 @@ class ChatbotService:
             turn = {"reply": "...", "visual_cue": "worried"} if state["scene_id"] == "butcher_search" else self.generator.generate(
                 message, state["player_name"], config["characters"][character_id], knowledge, history,
                 LOCATIONS[state["location_id"]], next_state["affinity"], scene_events,
-                scene_context(next_state, just_told_destination),
+                scene_context(next_state, just_told_destination), scene_id=state["scene_id"],
             )
         finally:
             getLogger(__name__).info("chat generation %.1f ms", (perf_counter() - started) * 1000)

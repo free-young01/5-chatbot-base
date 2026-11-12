@@ -95,6 +95,7 @@ class StoryGenerator:
             "제공된 사실 밖의 사건이나 미래의 비밀을 지어내거나 미리 밝히지 마세요. "
             "장소 이동, 단서 획득, 호감도와 엔딩을 선언하지 마세요. 이전에 나눈 대화를 기억하고, 일반적인 질문에도 자연스럽게 이어서 한두 문장으로 대답하세요. "
             "현재 장면에서 이미 한 대사를 반복하거나 다시 인사하지 말고, 플레이어의 질문에 이어서 답하세요. "
+            "reply에는 인물이 실제로 말하는 문장만 쓰세요. 목록 기호(-, *, •), 제목, 강조 표시, 행동 설명, 화자 이름을 넣지 말고 문장은 일반 문장부호로 이어 쓰세요. "
             "visual_cue는 호감도 판정과 별개로 실제 답변의 표정을 나타냅니다. 캐런·캐시가 친절하게 맞이하거나 호의적으로 답하면 smile, 불안하거나 화가 나면 worried를 고르세요. 호감도가 올랐다는 이유만으로 웃게 하지 마세요. 경계 단계의 캐런도 겉으로 웃을 수 있습니다."
         )
 
@@ -145,7 +146,10 @@ class StoryGenerator:
 
         try:
             turn = json.loads(response.output_text)
-            if not isinstance(turn["reply"], str) or not turn["reply"].strip():
+            if not isinstance(turn["reply"], str):
+                raise ValueError("empty reply")
+            turn["reply"] = re.sub(r"(?m)^[ \t]*[-–—*•][ \t]+", "", turn["reply"]).strip()
+            if not turn["reply"]:
                 raise ValueError("empty reply")
             if turn["visual_cue"] not in {"neutral", "smile", "worried"}:
                 raise ValueError("invalid visual cue")

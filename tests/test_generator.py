@@ -10,6 +10,16 @@ from services.generator import StoryGenerator
 
 
 class GeneratorTest(unittest.TestCase):
+    def test_reply_uses_spoken_lines_without_list_markers(self):
+        answer = {"reply": "- 안녕하세요.\n— 고기-채소는 다 준비했어요.", "visual_cue": "smile"}
+        with patch("services.generator.OpenAI") as client:
+            client.return_value.responses.create.return_value = SimpleNamespace(status="completed", output_text=json.dumps(answer))
+            turn = StoryGenerator().generate("준비됐나요?", "알렉스", {"name": "밥", "persona": {}}, [], [], "정육점", 50, [], ("방문", "가게 주인", "비밀"))
+        self.assertEqual(turn["reply"], "안녕하세요.\n고기-채소는 다 준비했어요.")
+        instructions = client.return_value.responses.create.call_args.kwargs["instructions"]
+        self.assertIn("인물이 실제로 말하는 문장만", instructions)
+        self.assertIn("목록 기호(-, *, •)", instructions)
+
     def test_karen_keeps_composed_persona_and_never_outputs_her_old_laugh(self):
         config = json.loads((Path(__file__).resolve().parents[1] / "config" / "chatbot_config.json").read_text(encoding="utf-8"))
         karen = config["characters"]["karen"]
